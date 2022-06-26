@@ -410,6 +410,26 @@ public class PetEndpointTest {
 	}
 
 	@Test
+	void rejectsImageUploadForInvalidPetId() {
+		// Given
+		RequestSpecification request = when()
+				.contentType(ContentType.MULTIPART)
+				.multiPart("file", "remote-file.png",
+						getClass().getResourceAsStream("/test-image.png")
+				);
+
+		// When
+		Response response = request.post("/invalid/uploadImage");
+
+		// Then
+		response.then().statusCode(404)
+				.body("type", is("unknown"))
+				.body("message", is(
+						"java.lang.NumberFormatException: For input string: \"invalid\""
+				));
+	}
+
+	@Test
 	void acceptsImageUploadForDeletedPet() {
 		// Given
 		Long id = aDeletedPet();
