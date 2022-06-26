@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -388,6 +389,25 @@ public class PetEndpointTest {
 						"additionalMetadata: null\n" +
 						"File uploaded to ./remote-file.png, 10169 bytes"
 				));
+	}
+
+	@Test
+	void failsOnImageUploadWithoutFile() {
+		// Given
+		Long id = anExistingPet(Map.of("name", "my-pet"));
+
+		RequestSpecification request = when()
+				.contentType(ContentType.MULTIPART)
+				.pathParam("petId", id)
+				.multiPart("additionalMetadata", "foo=bar");
+
+		// When
+		Response response = request.post("{petId}/uploadImage");
+
+		// Then
+		response.then().statusCode(500)
+				.contentType(ContentType.HTML)
+				.body(containsString("Internal Server Error"));
 	}
 
 	private Long anExistingPet(Map<String, Object> data) {
