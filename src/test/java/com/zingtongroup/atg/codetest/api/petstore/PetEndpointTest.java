@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -314,6 +315,28 @@ public class PetEndpointTest {
 				.body("tags", is(Arrays.asList(null, null, null)));
 	}
 
+	@Test
+	void acceptsNullTagFields() {
+		// Given
+		RequestSpecification request = given().body(Map.of("tags", List.of(
+				mapOfNull("id", "name"),
+				mapOfNull("id", "name"),
+				mapOfNull("id", "name")
+		)));
+
+		// When
+		Response response = request.when().post();
+
+		// Then
+		// Strange behavior...
+		response.then().statusCode(200)
+				.body("id", notNullValue())
+				.body("tags", is(List.of(
+						Map.of("id", 0),
+						Map.of("id", 0),
+						Map.of("id", 0)
+				)));
+	}
 
 	private Long anExistingPet(Map<String, Object> data) {
 		return given()
@@ -341,5 +364,15 @@ public class PetEndpointTest {
 		return Optional.ofNullable(statuses)
 				.map(text -> List.of(text.split(" ")))
 				.orElse(List.of());
+	}
+
+	private Map<String, Object> mapOfNull(String... keys) {
+		Map<String, Object> result = new HashMap<>();
+
+		for (String key : keys) {
+			result.put(key, null);
+		}
+
+		return result;
 	}
 }
