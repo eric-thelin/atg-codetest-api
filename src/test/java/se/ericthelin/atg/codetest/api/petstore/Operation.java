@@ -1,4 +1,4 @@
-package com.zingtongroup.atg.codetest.api.petstore;
+package se.ericthelin.atg.codetest.api.petstore;
 
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;

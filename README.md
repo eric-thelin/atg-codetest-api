@@ -13,7 +13,7 @@ Write API tests for testing the "pet" endpoint of
 ## Solution
 
 The test is found in
-[PetEndpointTest](src/test/java/com/zingtongroup/atg/codetest/api/petstore/PetEndpointTest.java).
+[PetEndpointTest](src/test/java/se/ericthelin/atg/codetest/api/petstore/PetEndpointTest.java).
 I have tried to test all happy paths as well as invalid values and edge cases. I
 am sure there are edge cases that I did not think of. Also, I have tried to
 design the tests to be robust, but since this is a public API used by others
