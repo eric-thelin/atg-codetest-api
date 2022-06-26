@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 import java.util.Map;
@@ -233,6 +234,29 @@ public class PetEndpointTest {
 				String.format("findAll {it.id in %s }.name", pets),
 				is(parseParameter(expectedNames))
 		);
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"available",
+			"pending",
+			"sold",
+			"invalid",
+			"lorem ipsum"
+	})
+	void acceptsAnyStatus(String status) {
+		// Given
+		RequestSpecification request = given()
+				.body(Map.of(
+						"status", status
+				));
+
+		// When
+		Response response = request.when().post();
+
+		// Then
+		response.then().statusCode(200)
+				.body("status", is(status));
 	}
 
 	private Long anExistingPet(Map<String, Object> data) {
