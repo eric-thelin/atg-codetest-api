@@ -207,6 +207,7 @@ public class PetEndpointTest {
 			"available              | p1",
 			"pending                | p2",
 			"sold                   | p3",
+			"invalid                |",
 
 			// It is interesting that the order of the statuses affect the
 			// response. It seems like only the first value is being used,
@@ -215,6 +216,7 @@ public class PetEndpointTest {
 			"available pending sold | p1",
 			"pending sold available | p2",
 			"sold available pending | p3",
+			"invalid available      |",
 	}, delimiter = '|')
 	void findsPetsByStatus(String statuses, String expectedNames) {
 		// Given
