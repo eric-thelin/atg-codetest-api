@@ -6,6 +6,7 @@ import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.List;
 import java.util.Map;
@@ -98,8 +99,9 @@ public class PetEndpointTest {
 				)));
 	}
 
-	@Test
-	void acceptsMinimalUpdateByPut() {
+	@ParameterizedTest
+	@EnumSource(names = {"PUT", "POST"})
+	void acceptsMinimalUpdate(Operation operation) {
 		// Given
 		Long id = anExistingPet(Map.of(
 				"name", "my-pet",
@@ -115,7 +117,7 @@ public class PetEndpointTest {
 		RequestSpecification request = given().body(Map.of("id", id));
 
 		// When
-		Response response = request.when().put();
+		Response response = operation.execute(request);
 
 		// Then
 		response.then().statusCode(200)
@@ -126,8 +128,9 @@ public class PetEndpointTest {
 				.body("tags", is(empty()));
 	}
 
-	@Test
-	void acceptsFullUpdateByPut() {
+	@ParameterizedTest
+	@EnumSource(names = {"PUT", "POST"})
+	void acceptsFullUpdate(Operation operation) {
 		// Given
 		Long id = anExistingPet(Map.of(
 				"name", "my-pet",
@@ -152,7 +155,7 @@ public class PetEndpointTest {
 		));
 
 		// When
-		Response response = request.when().put();
+		Response response = operation.execute(request);
 
 		// Then
 		response.then().statusCode(200)
@@ -164,60 +167,6 @@ public class PetEndpointTest {
 						Map.of("id", 3, "name", "t3"),
 						Map.of("id", 4, "name", "t4")
 				)));
-	}
-
-	@Test
-	void acceptsMinimalUpdateByPost() {
-		// Given
-		Long id = anExistingPet(Map.of(
-				"name", "my-pet",
-				"status", "pending",
-				"photoUrls", List.of("p1"),
-				"tags", List.of(Map.of("id", 1, "name", "t1"))
-		));
-
-		RequestSpecification request = given().body(Map.of("id", id));
-
-		// When
-		Response response = request.when().post();
-
-		// Then
-		response.then().statusCode(200)
-				.body("id", is(id))
-				.body("name", is(nullValue()))
-				.body("status", is(nullValue()))
-				.body("photoUrls", is(empty()))
-				.body("tags", is(empty()));
-	}
-
-	@Test
-	void acceptsFullUpdateByPost() {
-		// Given
-		Long id = anExistingPet(Map.of(
-				"name", "my-pet",
-				"status", "pending",
-				"photoUrls", List.of("p1"),
-				"tags", List.of(Map.of("id", 1, "name", "t1"))
-		));
-
-		RequestSpecification request = given().body(Map.of(
-				"id", id,
-				"name", "new-name",
-				"status", "sold",
-				"photoUrls", List.of("p2"),
-				"tags", List.of(Map.of("id", 2, "name", "t2"))
-		));
-
-		// When
-		Response response = request.when().post();
-
-		// Then
-		response.then().statusCode(200)
-				.body("id", is(id))
-				.body("name", is("new-name"))
-				.body("status", is("sold"))
-				.body("photoUrls", is(List.of("p2")))
-				.body("tags", is(List.of(Map.of("id", 2, "name", "t2"))));
 	}
 
 	@ParameterizedTest
