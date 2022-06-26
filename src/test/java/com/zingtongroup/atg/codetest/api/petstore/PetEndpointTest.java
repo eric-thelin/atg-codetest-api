@@ -169,6 +169,37 @@ public class PetEndpointTest {
 				)));
 	}
 
+	@Test
+	void acceptsDelete() {
+		// Given
+		Long id = anExistingPet(Map.of("name", "my-pet"));
+
+		// When
+		Response response = when().delete(String.valueOf(id));
+
+		// Then
+		response.then().statusCode(200)
+				.body("code", is(200))
+				.body("type", is("unknown"))
+				.body("message", is(String.valueOf(id)));
+	}
+
+	@Test
+	void forgetsDeletedPet() {
+		// Given
+		Long id = anExistingPet(Map.of("name", "my-pet"));
+		when().delete(String.valueOf(id));
+
+		// When
+		Response response = when().get(String.valueOf(id));
+
+		// Then
+		response.then().statusCode(404)
+				.body("code", is(1))
+				.body("type", is("error"))
+				.body("message", is("Pet not found"));
+	}
+
 	@ParameterizedTest
 	@CsvSource(value = {
 			"                       | ",
