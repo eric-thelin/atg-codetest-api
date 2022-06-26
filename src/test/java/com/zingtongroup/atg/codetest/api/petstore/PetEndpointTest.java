@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -280,6 +281,24 @@ public class PetEndpointTest {
 		response.then().statusCode(200)
 				.body("status", is(status));
 	}
+
+	@Test
+	void acceptsNullPhotoUrls() {
+		// Given
+		RequestSpecification request = given()
+				.body(Map.of(
+						"photoUrls", Arrays.asList(null, null, null)
+				));
+
+		// When
+		Response response = request.when().post();
+
+		// Then
+		response.then().statusCode(200)
+				.body("id", notNullValue())
+				.body("photoUrls", is(Arrays.asList(null, null, null)));
+	}
+
 
 	private Long anExistingPet(Map<String, Object> data) {
 		return given()
