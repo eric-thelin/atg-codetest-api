@@ -174,6 +174,24 @@ public class PetEndpointTest {
 				)));
 	}
 
+	@ParameterizedTest
+	@EnumSource(names = {"PUT", "POST"})
+	void failsOnUpdateOfInvalidPetId(Operation operation) {
+		// Given
+		RequestSpecification request = given().body(Map.of(
+				"id", "invalid"
+		));
+
+		// When
+		Response response = operation.execute(request);
+
+		// Then
+		response.then().statusCode(500)
+				.body("code", is(500))
+				.body("type", is("unknown"))
+				.body("message", is("something bad happened"));
+	}
+
 	@Test
 	void acceptsDelete() {
 		// Given
