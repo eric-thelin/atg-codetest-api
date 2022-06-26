@@ -192,8 +192,7 @@ public class PetEndpointTest {
 	@Test
 	void forgetsDeletedPet() {
 		// Given
-		Long id = anExistingPet();
-		when().delete(String.valueOf(id));
+		Long id = aDeletedPet();
 
 		// When
 		Response response = when().get(String.valueOf(id));
@@ -408,6 +407,12 @@ public class PetEndpointTest {
 		response.then().statusCode(500)
 				.contentType(ContentType.HTML)
 				.body(containsString("Internal Server Error"));
+	}
+
+	private Long aDeletedPet() {
+		Long id = anExistingPet();
+		when().delete(String.valueOf(id));
+		return id;
 	}
 
 	private Long anExistingPet() {
