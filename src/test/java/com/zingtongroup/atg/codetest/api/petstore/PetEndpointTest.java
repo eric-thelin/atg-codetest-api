@@ -299,6 +299,21 @@ public class PetEndpointTest {
 				.body("photoUrls", is(Arrays.asList(null, null, null)));
 	}
 
+	@Test
+	void acceptsNullTags() {
+		// Given
+		RequestSpecification request = given()
+				.body(Map.of("tags", Arrays.asList(null, null, null)));
+
+		// When
+		Response response = request.when().post();
+
+		// Then
+		response.then().statusCode(200)
+				.body("id", notNullValue())
+				.body("tags", is(Arrays.asList(null, null, null)));
+	}
+
 
 	private Long anExistingPet(Map<String, Object> data) {
 		return given()
