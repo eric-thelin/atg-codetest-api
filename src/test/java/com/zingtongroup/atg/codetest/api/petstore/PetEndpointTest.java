@@ -4,9 +4,13 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
@@ -162,6 +166,41 @@ public class PetEndpointTest {
 				)));
 	}
 
+	@ParameterizedTest
+	@CsvSource(value = {
+			"                       | ",
+			"available              | p1",
+			"pending                | p2",
+			"sold                   | p3",
+
+			// It is interesting that the order of the statuses affect the
+			// response. It seems like only the first value is being used,
+			// despite the fact that API documentation suggests this to be a
+			// multi-value parameter.
+			"available pending sold | p1",
+			"pending sold available | p2",
+			"sold available pending | p3",
+	}, delimiter = '|')
+	void findsPetsByStatus(String statuses, String expectedNames) {
+		// Given
+		Set<Long> pets = Set.of(
+				anExistingPet(Map.of("name", "p1", "status", "available")),
+				anExistingPet(Map.of("name", "p2", "status", "pending")),
+				anExistingPet(Map.of("name", "p3", "status", "sold"))
+		);
+
+		// When
+		Response response = when()
+				.queryParam("status", parseParameter(statuses))
+				.get("findByStatus");
+
+		// Then
+		response.then().statusCode(200).body(
+				String.format("findAll {it.id in %s }.name", pets),
+				is(parseParameter(expectedNames))
+		);
+	}
+
 	private Long anExistingPet(Map<String, Object> data) {
 		return given()
 				.body(data)
@@ -182,5 +221,11 @@ public class PetEndpointTest {
 		result.response().log().ifValidationFails();
 
 		return result;
+	}
+
+	private List<String> parseParameter(String statuses) {
+		return Optional.ofNullable(statuses)
+				.map(text -> List.of(text.split(" ")))
+				.orElse(List.of());
 	}
 }
