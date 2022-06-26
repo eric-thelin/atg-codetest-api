@@ -1,6 +1,7 @@
 package com.zingtongroup.atg.codetest.api.petstore;
 
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.Test;
@@ -336,6 +337,32 @@ public class PetEndpointTest {
 						Map.of("id", 0),
 						Map.of("id", 0)
 				)));
+	}
+
+	@Test
+	void acceptsImage() {
+		// Given
+		Long id = anExistingPet(Map.of("name", "my-pet"));
+
+		RequestSpecification request = when()
+				.contentType(ContentType.MULTIPART)
+				.pathParam("petId", id)
+				.multiPart("additionalMetadata", "foo=bar")
+				.multiPart("file", "remote-file.png",
+						getClass().getResourceAsStream("/test-image.png")
+				);
+
+		// When
+		Response response = request.post("{petId}/uploadImage");
+
+		// Then
+		response.then().statusCode(200)
+				.body("code", is(200))
+				.body("type", is("unknown"))
+				.body("message", is("" +
+						"additionalMetadata: foo=bar\n" +
+						"File uploaded to ./remote-file.png, 10169 bytes"
+				));
 	}
 
 	private Long anExistingPet(Map<String, Object> data) {
