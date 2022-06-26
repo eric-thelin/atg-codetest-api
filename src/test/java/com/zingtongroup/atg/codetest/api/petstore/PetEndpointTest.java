@@ -236,6 +236,26 @@ public class PetEndpointTest {
 		);
 	}
 
+	@Test
+	void acceptsFindingPetsByStatusWithoutStatusParameter() {
+		// Given
+		Set<Long> pets = Set.of(
+				anExistingPet(Map.of("name", "p1", "status", "available")),
+				anExistingPet(Map.of("name", "p2", "status", "pending")),
+				anExistingPet(Map.of("name", "p3", "status", "sold"))
+		);
+
+		// When
+		Response response = when().get("findByStatus");
+
+		// Then
+		response.then().statusCode(200).body(
+				String.format("findAll {it.id in %s }.name", pets),
+				is(empty())
+		);
+	}
+
+
 	@ParameterizedTest
 	@ValueSource(strings = {
 			"available",
