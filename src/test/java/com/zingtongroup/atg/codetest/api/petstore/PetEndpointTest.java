@@ -204,6 +204,20 @@ public class PetEndpointTest {
 				.body("message", is("Pet not found"));
 	}
 
+	@Test
+	void rejectsDeleteForInvalidPetId() {
+		// When
+		Response response = when().delete("invalid");
+
+		// Then
+		response.then().statusCode(404)
+				.body("code", is(404))
+				.body("type", is("unknown"))
+				.body("message", is(
+						"java.lang.NumberFormatException: For input string: \"invalid\""
+				));
+	}
+
 	@ParameterizedTest
 	@CsvSource(value = {
 			"                       | ",
