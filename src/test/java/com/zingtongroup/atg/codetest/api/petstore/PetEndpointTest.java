@@ -365,6 +365,31 @@ public class PetEndpointTest {
 				));
 	}
 
+	@Test
+	void acceptsImageWithoutMetadata() {
+		// Given
+		Long id = anExistingPet(Map.of("name", "my-pet"));
+
+		RequestSpecification request = when()
+				.contentType(ContentType.MULTIPART)
+				.pathParam("petId", id)
+				.multiPart("file", "remote-file.png",
+						getClass().getResourceAsStream("/test-image.png")
+				);
+
+		// When
+		Response response = request.post("{petId}/uploadImage");
+
+		// Then
+		response.then().statusCode(200)
+				.body("code", is(200))
+				.body("type", is("unknown"))
+				.body("message", is("" +
+						"additionalMetadata: null\n" +
+						"File uploaded to ./remote-file.png, 10169 bytes"
+				));
+	}
+
 	private Long anExistingPet(Map<String, Object> data) {
 		return given()
 				.body(data)
