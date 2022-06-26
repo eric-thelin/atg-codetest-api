@@ -177,7 +177,7 @@ public class PetEndpointTest {
 	@Test
 	void acceptsDelete() {
 		// Given
-		Long id = anExistingPet(Map.of("name", "my-pet"));
+		Long id = anExistingPet();
 
 		// When
 		Response response = when().delete(String.valueOf(id));
@@ -192,7 +192,7 @@ public class PetEndpointTest {
 	@Test
 	void forgetsDeletedPet() {
 		// Given
-		Long id = anExistingPet(Map.of("name", "my-pet"));
+		Long id = anExistingPet();
 		when().delete(String.valueOf(id));
 
 		// When
@@ -343,7 +343,7 @@ public class PetEndpointTest {
 	@Test
 	void acceptsImage() {
 		// Given
-		Long id = anExistingPet(Map.of("name", "my-pet"));
+		Long id = anExistingPet();
 
 		RequestSpecification request = when()
 				.contentType(ContentType.MULTIPART)
@@ -369,7 +369,7 @@ public class PetEndpointTest {
 	@Test
 	void acceptsImageWithoutMetadata() {
 		// Given
-		Long id = anExistingPet(Map.of("name", "my-pet"));
+		Long id = anExistingPet();
 
 		RequestSpecification request = when()
 				.contentType(ContentType.MULTIPART)
@@ -394,7 +394,7 @@ public class PetEndpointTest {
 	@Test
 	void failsOnImageUploadWithoutFile() {
 		// Given
-		Long id = anExistingPet(Map.of("name", "my-pet"));
+		Long id = anExistingPet();
 
 		RequestSpecification request = when()
 				.contentType(ContentType.MULTIPART)
@@ -408,6 +408,10 @@ public class PetEndpointTest {
 		response.then().statusCode(500)
 				.contentType(ContentType.HTML)
 				.body(containsString("Internal Server Error"));
+	}
+
+	private Long anExistingPet() {
+		return anExistingPet(Map.of("name", "my-pet"));
 	}
 
 	private Long anExistingPet(Map<String, Object> data) {
